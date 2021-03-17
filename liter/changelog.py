@@ -26,29 +26,27 @@ def _get_section(sec_name, commits):
     return SECTION_MODEL.format(sec_name, commits_md)
 
 def _get_version_model(version, commits, config):
-    added, fixed, removed, others = [], [], [], []
+
+    sections = { name: [] for name in config['changelog_sections'].keys()}
+    sections['Others'] = []
 
     for commit in commits:
         key_word = commit.split()[0].lower()
-        if key_word in config['added_words']:
-            added.append(commit)
-        elif key_word in config['fixed_words']:
-            fixed.append(commit)
-        elif key_word in config['removed_words']:
-            removed.append(commit)
-        else:
-            others.append(commit)
-
+        on_section = False
+        for section, filters in config['changelog_sections'].items():
+            if key_word in filters:
+                sections[section].append(commit)   
+                on_section = True
+        if not on_section:
+            sections['Others'].append(commit)
+    
+    if not config['changelog_include_others']:
+        sections.pop('Others')
 
     version_body = ""
-    if added:
-        version_body += _get_section('Added', added)
-    if fixed:
-        version_body += _get_section('Fixed', fixed)
-    if removed:
-        version_body += _get_section('Removed', removed)
-    if others:
-        version_body += _get_section('Others', others)
+    for name, cmmts in sections.items():
+        if cmmts:
+            version_body += _get_section(name, cmmts)
 
     return VERSION_MODEL.format(version, version_body)
 
@@ -60,8 +58,6 @@ def generate_changelogs():
     fmt = r'%s'
     subp = subprocess.Popen(f'git log --oneline --format="{fmt}"', stdout=subprocess.PIPE)
     commits = [str(s)[2:-3] + '\n' for s in subp.stdout.readlines()]
-
-    print(commits)
 
     config = load_config()
     changelog_body = ""
@@ -93,7 +89,6 @@ def generate_changelogs():
     versions.reverse()
     changelog = CHANGELOG_MODEL.format(''.join(versions))   
 
-    print(changelog)
     with open('CHANGELOG.md', 'w+') as f:
         f.write(changelog)
     
