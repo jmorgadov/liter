@@ -55,12 +55,11 @@ def _get_version_model(version, commits, config):
 
 def generate_changelogs(start_in: str = None):
     fmt = r'%d'
-    subp = subprocess.Popen(f'git log --oneline --format="{fmt}"', stdout=subprocess.PIPE)
-    tags = [str(s)[2:-3] for s in subp.stdout.readlines()]
+    subp = subprocess.Popen(['git', 'log', '--oneline', f'--format="{fmt}"'], stdout=subprocess.PIPE)
+    tags = [str(s)[3:-4] for s in subp.stdout.readlines()]
     fmt = r'%s'
-    subp = subprocess.Popen(f'git log --oneline --format="{fmt}"', stdout=subprocess.PIPE)
-    commits = [str(s)[2:-3] + '\n' for s in subp.stdout.readlines()]
-
+    subp = subprocess.Popen(['git', 'log', '--oneline', f'--format="{fmt}"'], stdout=subprocess.PIPE)
+    commits = [str(s)[3:-4] + '\n' for s in subp.stdout.readlines()]
     config = load_config()
     changelog_body = ""
 
