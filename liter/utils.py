@@ -4,7 +4,7 @@ from pathlib import Path
 
 DEFAULT_CONFIG = {
     "version" : "0.0.1",    
-    "ignore" : [
+    "version_ignore" : [
         'git',
         'dist',
         'egg',

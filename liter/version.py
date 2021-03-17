@@ -11,7 +11,7 @@ def change_version(vtype: str = 'patch', force: bool = False):
     config = load_config()
 
     def match_ignore(s):
-        for patt in config['ignore']:
+        for patt in config['version_ignore']:
             if re.search(patt, s) is not None:
                 return True
         return False
