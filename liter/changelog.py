@@ -51,7 +51,7 @@ def _get_version_model(version, commits, config):
     return VERSION_MODEL.format(version, version_body)
 
 
-def generate_changelogs():
+def generate_changelogs(start_in: str = None):
     fmt = r'%d'
     subp = subprocess.Popen(f'git log --oneline --format="{fmt}"', stdout=subprocess.PIPE)
     tags = [str(s)[2:-3] for s in subp.stdout.readlines()]
@@ -67,12 +67,20 @@ def generate_changelogs():
 
     current_version_commits = []
     versions = []
+    saving = start_in is None
     for i, commit in enumerate(commits):
-        if tags[i] != '' and re.search('\d+\.\d+\.\d+', tags[i]) is not None:
-            vers = 'v' + re.search('\d+\.\d+\.\d+', tags[i])[0]
+        if tags[i] != '' and re.search('\d+\.\d+\.\d+', tags[i]) is not None:            
+            vers = re.search('\d+\.\d+\.\d+', tags[i])[0]
+            if vers == start_in:
+                saving = True
+
+            if not saving:
+                current_version_commits = []
+                continue
+
             current_version_commits.append(commit)
             versions.append(_get_version_model(
-                vers,
+                f'[{vers}]',
                 current_version_commits,
                 config
             ))
@@ -81,7 +89,7 @@ def generate_changelogs():
             current_version_commits.append(commit)
     if current_version_commits:
         versions.append(_get_version_model(
-            'Not released', 
+            '[Not released]', 
             current_version_commits,
             config
         ))
