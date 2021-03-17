@@ -21,7 +21,10 @@ DEFAULT_CONFIG = {
         "Removed" : [
             "remove"
         ]
-    }
+    },
+    "changelog_ignore_commits" : [
+        "merge"
+    ]
 }
 
 def _find_version(file_path):

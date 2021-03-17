@@ -32,6 +32,8 @@ def _get_version_model(version, commits, config):
 
     for commit in commits:
         key_word = commit.split()[0].lower()
+        if key_word in config['changelog_ignore_commits']:
+            continue
         on_section = False
         for section, filters in config['changelog_sections'].items():
             if key_word in filters:
