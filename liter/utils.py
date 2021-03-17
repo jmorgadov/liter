@@ -60,8 +60,3 @@ def save_config(config):
 def yn_input(msg):
     ans = input(f'{msg} (y/n)[y]:').lower()
     return ans == '' or ans == 'y'
-
-class Style():
-    RED = '\033[31m'
-    GREEN = '\033[32m'
-    RESET = '\033[0m'

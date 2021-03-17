@@ -3,7 +3,7 @@ import json
 import os
 import re
 import sys
-from liter.utils import load_config, Style, yn_input
+from liter.utils import load_config, yn_input
 from pathlib import Path
 
 
@@ -44,18 +44,18 @@ def change_version(vtype: str = 'patch', force: bool = False):
                         s_line = line.strip('\n')
                         if re.search(current_vers, line) is not None:
                             print(f'\nFile: {full_path}')
-                            print('-' * 40)
+                            print('-' * 80)
                             new_line = re.sub(current_vers, new_vers, line)
                             if i > 0:
                                 l0 = lines[i-1].strip('\n')
                                 print(f'{i: >6} | {l0}')
                             s_new_line = new_line.strip('\n')
-                            print(f'{i+1: >6} | {Style.RED}{s_line}{Style.RESET}')
-                            print(f'{"" : >6} | {Style.GREEN}{s_new_line}{Style.RESET}')
+                            print(f'{i+1: >6} | {s_line}')
+                            print(f'{"NEW --" : >6} | {s_new_line}')
                             if i + 1 < len(lines):
                                 l2 = lines[i+1].strip('\n')
                                 print(f'{i+2: >6} | {l2}')
-                            if force or yn_input('Replace?'):
+                            if force or yn_input('\nReplace?'):
                                 new_lines.append(new_line)
                             else:
                                 new_lines.append(line)
