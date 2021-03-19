@@ -11,7 +11,6 @@ DEFAULT_CONFIG = {
         'CHANGELOG',
         '.lock'        
      ],
-    "changelog_include_others" : True,
     "changelog_sections" : {
         "Added" : [
             "add"
@@ -23,6 +22,7 @@ DEFAULT_CONFIG = {
             "remove"
         ]
     },
+    "changelog_include_others" : True,
     "changelog_ignore_commits" : [
         "merge"
     ]
