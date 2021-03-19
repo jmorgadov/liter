@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "liter"
 version = "0.0.1"
-description = ""
+description = "Tool for automating basic python packages task."
 authors = ["Jorge Morgado <jorge.morgadov@gmail.com>"]
 
 [tool.poetry.dependencies]
