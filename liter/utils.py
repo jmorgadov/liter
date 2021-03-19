@@ -52,8 +52,22 @@ def load_config():
             json.dump(conf, f, indent=4)
         return conf
 
+    loaded_config = {}
     with open('literconfig.json', 'r') as f:
-        config = json.load(f)
+        loaded_config = json.load(f)
+        
+    config = {}
+    missing_key = False
+    for key, item in DEFAULT_CONFIG.items():
+        if key not in loaded_config.keys():
+            config[key] = item
+            missing_key = True
+        else:
+            config[key] = loaded_config[key] 
+
+    if missing_key:
+        with open('literconfig.json', 'w+') as f:
+            json.dump(config, f, indent=4)        
     return config
 
 def save_config(config):
