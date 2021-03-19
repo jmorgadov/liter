@@ -8,7 +8,8 @@ DEFAULT_CONFIG = {
         'git',
         'dist',
         'egg',
-        'CHANGELOG'
+        'CHANGELOG',
+        '.lock'        
      ],
     "changelog_include_others" : True,
     "changelog_sections" : {
