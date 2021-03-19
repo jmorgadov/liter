@@ -92,3 +92,7 @@ When runing any command in **liter** a `literconfig.json` file will be created w
 - `changelog_ignore_commits`
 
     All the commits that match with any of these *key words* will not be included in the changelog file.
+
+- `changelog_only_path_pattern`
+
+    Only include commits that affected files which path contains any of the patterns specified.
