@@ -4,7 +4,7 @@ version = "0.0.2"
 description = "Tool for automating basic python packages task."
 authors = ["Jorge Morgado <jorge.morgadov@gmail.com>"]
 readme = "README.md"
-licence = "MIT"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
