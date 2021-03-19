@@ -39,7 +39,7 @@ liter changelog --start-in 0.2.0
 
 ### Changing version
 
-Changing version with liter will find all files in your project recursively where your current package version is written. For each line in every file where a version match is found you can choose if modify the line or not.
+Changing version with liter will find all the files in your project recursively where your current package version is written. For each line in every file where a version match is found you can choose if modify the line or not.
 
 To change project version type:
 
@@ -47,7 +47,7 @@ To change project version type:
 liter version
 ```
 
-Whish is the same as:
+Which is the same as:
 
 ```shell
 liter version patch
