@@ -39,7 +39,7 @@ liter changelog --start-in 0.2.0
 
 ### Changing version
 
-Changing version with liter will find all the files in your project recursively where your current package version is written. For each line in every file where a version match is found you can choose if modify the line or not.
+Changing version with **liter** will find all the files in your project recursively where your current package version is written. For each line in every file where a version match is found you can choose if modify the line or not.
 
 To change project version type:
 
@@ -69,13 +69,13 @@ Where `major`, `minor` and `patch` refers to the 1st, 2nd and 3rd version number
 
 ## Liter config file
 
-When runing any command in liter a `literconfig.json` file will be created with some default configuraions. You can customise this parameters as you want.
+When runing any command in **liter** a `literconfig.json` file will be created with some default configuraions. You can customize this parameters as you want.
 
 ### Config parameters
 
 - `version`
 
-    This is your current package version. By default liter will lock for a `setup.py` or a `pyproject.toml` to find your current version. If you do not have any of this file you must change the `version` parameter in `literconfig.json` to your current package version.
+    This is your current package version. By default **liter** will look for a `setup.py` or a `pyproject.toml` to find your current version. If you do not have any of this file you must change the `version` parameter in `literconfig.json` to your current package version.
 
 - `version_ignore`
 
@@ -83,7 +83,7 @@ When runing any command in liter a `literconfig.json` file will be created with 
 
 - `changelog_sections`
 
-    Dictionary of sections that will be included in changelog file. Each key, value pair represents the section names and a list of *key words* respectively. A commit will be added to a section if the first word of the commit is any of the sections defined *key word*.
+    Sections that will be included in changelog file. Each key, value pair represents the section names and a list of *key words* respectively. A commit will be added to a section if the first word of the commit is any of the sections defined *key word*.
 
 - `changelog_include_others`
 
@@ -91,4 +91,4 @@ When runing any command in liter a `literconfig.json` file will be created with 
 
 - `changelog_ignore_commits`
 
-    All the commits that match with any of these *key words* will not be in the changelog file.
+    All the commits that match with any of these *key words* will not be included in the changelog file.
