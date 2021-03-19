@@ -25,7 +25,7 @@ def _get_section(sec_name, commits):
         commits_md += COMMIT_MODEL.format(commit)
     return SECTION_MODEL.format(sec_name, commits_md)
 
-def _get_version_model(version, commits, config):
+def _get_version_model(version, commits, config, date=''):
 
     sections = { name: [] for name in config['changelog_sections'].keys()}
     sections['Others'] = []
@@ -50,16 +50,32 @@ def _get_version_model(version, commits, config):
         if cmmts:
             version_body += _get_section(name, cmmts)
 
-    return VERSION_MODEL.format(version, version_body)
+
+    return VERSION_MODEL.format(f'{version} {date}', version_body)
 
 
 def generate_changelogs(start_in: str = None):
-    fmt = r'%d'
-    subp = subprocess.Popen(['git', 'log', '--oneline', f'--format="{fmt}"'], stdout=subprocess.PIPE)
+    # Getting tags
+    subp = subprocess.Popen(
+        ['git', 'log', '--oneline', r'--format="%d"'],
+        stdout=subprocess.PIPE
+    )
     tags = [str(s)[3:-4] for s in subp.stdout.readlines()]
-    fmt = r'%s'
-    subp = subprocess.Popen(['git', 'log', '--oneline', f'--format="{fmt}"'], stdout=subprocess.PIPE)
+
+    # Getting subjects
+    subp = subprocess.Popen(
+        ['git', 'log', '--oneline', r'--format="%s"'],
+        stdout=subprocess.PIPE
+    )
     commits = [str(s)[3:-4] + '\n' for s in subp.stdout.readlines()]
+
+    # Getting dates
+    subp = subprocess.Popen(
+        ['git', 'log', '--oneline', r'--format="%as"'],
+        stdout=subprocess.PIPE
+    )
+    dates = [str(s)[3:-4] for s in subp.stdout.readlines()]
+
     config = load_config()
     changelog_body = ""
 
@@ -83,14 +99,15 @@ def generate_changelogs(start_in: str = None):
             versions.append(_get_version_model(
                 f'[{vers}]',
                 current_version_commits,
-                config
+                config,
+                dates[i]
             ))
             current_version_commits = []
         else:
             current_version_commits.append(commit)
     if current_version_commits:
         versions.append(_get_version_model(
-            '[Not released]', 
+            '[Not released]',
             current_version_commits,
             config
         ))
