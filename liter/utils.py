@@ -25,7 +25,8 @@ DEFAULT_CONFIG = {
     "changelog_include_others" : True,
     "changelog_ignore_commits" : [
         "merge"
-    ]
+    ],
+    "changelog_only_path_pattern" : []
 }
 
 def _find_version(file_path):
