@@ -53,34 +53,31 @@ def _get_version_model(version, commits, config, date=''):
 
     return VERSION_MODEL.format(f'{version} {date}', version_body)
 
+def get_subprocess_output(command, new_line_end=True, min=3, max=-4):
+    subp = subprocess.Popen(command, stdout=subprocess.PIPE)
+    end = '\n' if new_line_end else ''
+    return [str(s)[min:max] + end for s in subp.stdout.readlines()]
+
+def match(s, patterns):
+    for patt in patterns:
+        match_p = re.search(patt, s)
+        if match_p:
+            return match_p    
 
 def generate_changelogs(start_in: str = None):
     # Getting tags
-    subp = subprocess.Popen(
-        ['git', 'log', '--oneline', r'--format="%d"'],
-        stdout=subprocess.PIPE
-    )
-    tags = [str(s)[3:-4] for s in subp.stdout.readlines()]
-
+    tags = get_subprocess_output(['git', 'log', '--oneline', r'--format="%d"'])
     # Getting subjects
-    subp = subprocess.Popen(
-        ['git', 'log', '--oneline', r'--format="%s"'],
-        stdout=subprocess.PIPE
-    )
-    commits = [str(s)[3:-4] + '\n' for s in subp.stdout.readlines()]
-
+    commits = get_subprocess_output(['git', 'log', '--oneline', r'--format="%s"'])
     # Getting dates
-    subp = subprocess.Popen(
-        ['git', 'log', '--oneline', r'--format="%as"'],
-        stdout=subprocess.PIPE
-    )
-    dates = [str(s)[3:-4] for s in subp.stdout.readlines()]
+    dates = get_subprocess_output(['git', 'log', '--oneline', r'--format="%as"'])
 
     config = load_config()
     changelog_body = ""
 
     tags.reverse()
     commits.reverse()
+    dates.reverse()
 
     current_version_commits = []
     versions = []
@@ -96,6 +93,7 @@ def generate_changelogs(start_in: str = None):
                 continue
 
             current_version_commits.append(commit)
+                
             versions.append(_get_version_model(
                 f'[{vers}]',
                 current_version_commits,
