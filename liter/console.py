@@ -6,8 +6,9 @@ from liter.version import change_version
 app = typer.Typer()
 
 @app.command()
-def changelog(start_in: str = typer.Option(default=None)):
-    generate_changelogs(start_in)
+def changelog(start_in: str = typer.Option(default=None),
+              last: bool = typer.Option(default=False)):
+    generate_changelogs(start_in, last)
 
 @app.command()
 def version(vtype: str = typer.Argument(default='patch'),

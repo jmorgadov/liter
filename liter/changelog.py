@@ -16,9 +16,10 @@ VERSION_MODEL = """
 ## {0}
 {1}"""
 
-CHANGELOG_MODEL = """
-# CHANGELOG
+CHANGELOG_MODEL = """# CHANGELOG
 {0}"""
+
+VERSION_RE = r'## \[(?:Not released|\d+\.\d+\.\d+)\] (?:\d+\-\d+\-\d+)*\n\n(?:### (?:{0})\n\n(?:\- .*\n)*\n)*'
 
 def _get_section(sec_name, commits: List[str]):
     commits_md = ""
@@ -102,7 +103,28 @@ def basic_git_logs():
     full_hash = subprocess_output(['git', 'log', '--oneline', r'--format="%H"'], False)    
     return tags, commits, dates, full_hash
 
-def generate_changelogs(start_in: str = None):
+def append_last(current_version, version_model, config):
+    version_model += '\n'
+    changelog_txt = ''
+    with open('CHANGELOG.md', 'r') as f:
+        changelog_txt = f.read()
+    
+    patt = VERSION_RE.format('|'.join(config['changelog_sections'].keys()))
+
+    versions = re.findall(patt, changelog_txt)
+    last = versions[0]
+    last_version_value = re.match(r'## \[(Not released|\d+\.\d+\.\d+)\].*', last).groups(0)[0]
+
+    if last_version_value == current_version:
+        versions[0] = version_model
+    else:
+        versions.insert(0, version_model)
+
+    with open('CHANGELOG.md', 'w+') as f:
+        f.write('# CHANGELOG\n' + ''.join(versions))
+
+
+def generate_changelogs(start_in: str = None, last: bool = False):
     tags, commits, dates, full_hash = basic_git_logs()
     config = load_config()
     changelog_body = ""
@@ -119,6 +141,7 @@ def generate_changelogs(start_in: str = None):
     current_version_commits = []
     versions = []
     saving = start_in is None
+    current_version = 'Not released'
     for i, commit in enumerate(commits):
         valid_commit = True
 
@@ -143,6 +166,7 @@ def generate_changelogs(start_in: str = None):
                 config,
                 dates[i]
             ))
+            current_version = vers
             current_version_commits = []
         elif valid_commit:
             current_version_commits.append(commit)
@@ -152,10 +176,14 @@ def generate_changelogs(start_in: str = None):
             current_version_commits,
             config
         ))
+        current_version = 'Not released'
 
     versions.reverse()
-    changelog = CHANGELOG_MODEL.format(''.join(versions))   
 
-    with open('CHANGELOG.md', 'w+') as f:
-        f.write(changelog)
+    if last:
+        append_last(current_version, versions[0], config)
+    else:
+        changelog = CHANGELOG_MODEL.format(''.join(versions))
+        with open('CHANGELOG.md', 'w+') as f:
+            f.write(changelog)
     
