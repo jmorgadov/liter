@@ -1,6 +1,7 @@
 import subprocess
 import datetime
 import re
+from typing import List
 
 from liter.utils import load_config
 
@@ -19,9 +20,10 @@ CHANGELOG_MODEL = """
 # CHANGELOG
 {0}"""
 
-def _get_section(sec_name, commits):
+def _get_section(sec_name, commits: List[str]):
     commits_md = ""
     for commit in commits:
+        commit = commit.capitalize()
         commits_md += COMMIT_MODEL.format(commit)
     return SECTION_MODEL.format(sec_name, commits_md)
 
