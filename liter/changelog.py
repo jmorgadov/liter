@@ -5,7 +5,7 @@ from typing import List
 
 from liter.utils import load_config
 
-COMMIT_MODEL = """* {0}"""
+COMMIT_MODEL = """- {0}"""
 
 SECTION_MODEL = """
 ### {0}
