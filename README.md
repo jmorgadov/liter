@@ -37,6 +37,12 @@ Example:
 liter changelog --start-in 0.2.0
 ```
 
+If you want to add only the last version changelogs you can type:
+
+```shell
+liter changelog --last
+```
+
 ### Changing version
 
 Changing version with **liter** will find all the files in your project recursively where your current package version is written. For each line in every file where a version match is found you can choose if modify the line or not.
@@ -75,24 +81,48 @@ When runing any command in **liter** a `literconfig.json` file will be created w
 
 - `version`
 
-    This is your current package version. By default **liter** will look for a `setup.py` or a `pyproject.toml` to find your current version. If you do not have any of this file you must change the `version` parameter in `literconfig.json` to your current package version.
+  This is your current package version. By default **liter** will look for a `setup.py` or a `pyproject.toml` to find your current version. If you do not have any of this file you must change the `version` parameter in `literconfig.json` to your current package version.
 
 - `version_ignore`
 
-    List of patters to ignore when searching a version match in files.
+  List of patters to ignore when searching a version match in files.
 
 - `changelog_sections`
 
-    Sections that will be included in changelog file. Each key, value pair represents the section names and a list of *key words* respectively. A commit will be added to a section if the first word of the commit is any of the sections defined *key word*.
+  Sections that will be included in changelog file. Each key, value pair represents the section names and a list of *patterns* respectively. These patters specify what commits are included on each section.
+
+  **Pattern types:**
+
+  - Simple pattern: `'<patt>'`
+
+    Matches commits that starts with `<patt>` (No case sensitive).
+
+    > Example:\
+    > `'add'` matches `'Add some feature'`\
+    > `'fix'` matches `'Fix that code'`
+
+  - Using regex `search` function: `'s:<patt>'`
+
+    Matches commit that contains `<patt>`. (`<patt>` can be any regular expresion).
+
+    > Example:\
+    > `'s:fix'` matches `'Make a fix in that code'`
+
+  - Using regex `match` function: `'m:<patt>'`
+
+    Matches commit of the form `<patt>`. (`<patt>` can be any regular expresion)
+
+    > Example:\
+    > `'m:^Add [Tt]est.*'` matches `'Add test to code'` and `'Add Test to code'`
 
 - `changelog_include_others`
 
-    Wheter to include or not the `Others` section in changelogs. The `Other` sections contains all the commits that did not match with any of the *key words* added in any section of `changelog_sections`.
+  Wheter to include or not the `Others` section in changelogs. The `Other` sections contains all the commits that did not match with any of the *key words* added in any section of `changelog_sections`.
 
 - `changelog_ignore_commits`
 
-    All the commits that match with any of these *key words* will not be included in the changelog file.
+  All the commits that match with any of these *key words* will not be included in the changelog file.
 
 - `changelog_only_path_pattern`
 
-    Only include commits that affected files which path contains any of the patterns specified.
+  Only include commits that affected files which path contains any of the patterns specified.
