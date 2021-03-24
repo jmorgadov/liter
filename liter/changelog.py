@@ -30,6 +30,17 @@ def _get_section(sec_name, commits: List[str]):
         commits_md += COMMIT_MODEL.format(commit)
     return SECTION_MODEL.format(sec_name, commits_md)
 
+def match_pattern(pattern, text):
+    if pattern.startswith('m:') and \
+        re.match(pattern[2:], text) is not None:
+        return True
+    elif pattern.startswith('s:') and \
+            re.search(pattern[2:], text) is not None:
+        return True
+    elif text.lower().startswith(pattern):
+        return True
+    return False
+
 def _get_version_model(version, commits, config, date=''):
 
     version = f'[{version}]'
@@ -37,14 +48,18 @@ def _get_version_model(version, commits, config, date=''):
     sections['Others'] = []
 
     for commit in commits:
-        key_word = commit.split()[0].lower()
-        if key_word in config['changelog_ignore_commits']:
-            continue
+        # Checking ignore pattern
+        for ignore_patt in config['changelog_ignore_commits']:
+            if match_pattern(ignore_patt, commit):
+                continue
+
         on_section = False
         for section, filters in config['changelog_sections'].items():
-            if key_word in filters:
-                sections[section].append(commit)
-                on_section = True
+            for patt in filters:
+                if match_pattern(patt, commit):
+                    sections[section].append(commit)
+                    on_section = True
+        
         if not on_section:
             sections['Others'].append(commit)
 
@@ -55,7 +70,6 @@ def _get_version_model(version, commits, config, date=''):
     for name, cmmts in sections.items():
         if cmmts:
             version_body += _get_section(name, cmmts)
-
 
     return VERSION_MODEL.format(f'{version} {date}', version_body)
 
