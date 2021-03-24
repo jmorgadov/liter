@@ -37,7 +37,7 @@ def match_pattern(pattern, text):
     elif pattern.startswith('s:') and \
             re.search(pattern[2:], text) is not None:
         return True
-    elif text.lower().startswith(pattern):
+    elif text.lower().startswith(pattern.lower()):
         return True
     return False
 
