@@ -19,7 +19,9 @@ VERSION_MODEL = """
 CHANGELOG_MODEL = """# CHANGELOG
 {0}"""
 
-VERSION_RE = r'## \[(?:Not released|\d+\.\d+\.\d+)\] (?:\d+\-\d+\-\d+)*\n\n(?:### (?:{0})\n\n(?:\- .*\n)*\n)*'
+VERSION_RE = r'\d+\.\d+\.\d+'
+VERSION_MODEL_RE = r'## \[(?:Not released|\d+\.\d+\.\d+)\] ' \
+                   r'(?:\d+\-\d+\-\d+)*\n\n(?:###\s(?:{0})\n\n(?:\-\s.*\n)*\n)*'
 
 def _get_section(sec_name, commits: List[str]):
     commits_md = ""
@@ -30,6 +32,7 @@ def _get_section(sec_name, commits: List[str]):
 
 def _get_version_model(version, commits, config, date=''):
 
+    version = f'[{version}]'
     sections = { name: [] for name in config['changelog_sections'].keys()}
     sections['Others'] = []
 
@@ -40,11 +43,11 @@ def _get_version_model(version, commits, config, date=''):
         on_section = False
         for section, filters in config['changelog_sections'].items():
             if key_word in filters:
-                sections[section].append(commit)   
+                sections[section].append(commit)
                 on_section = True
         if not on_section:
             sections['Others'].append(commit)
-    
+
     if not config['changelog_include_others']:
         sections.pop('Others')
 
@@ -68,18 +71,19 @@ def match(s, patterns):
             return match_p
 
 def only_file_changes_valid_commits(path_filter_patterns):
-    history = subprocess_output(['git', 'log', '--name-only', '--oneline', r'--format="%H"'], False, 2, -3)
+    command = ['git', 'log', '--name-only', '--oneline', r'--format="%H"']
+    history = subprocess_output(command, False, 2, -3)
     commits_file_changes = {}
 
     i = 0
     current_hash = ''
-    while i < len(history):        
+    while i < len(history):
         is_hash = i + 1 < len(history) and history[i + 1] == ''
         if is_hash:
             current_hash = history[i][1:-1]
             i += 2
             continue
-        
+
         file_path = history[i]
 
         if file_path not in commits_file_changes.keys():
@@ -100,7 +104,7 @@ def basic_git_logs():
     tags = subprocess_output(['git', 'log', '--oneline', r'--format="%d"'])
     commits = subprocess_output(['git', 'log', '--oneline', r'--format="%s"'])
     dates = subprocess_output(['git', 'log', '--oneline', r'--format="%as"'], False)
-    full_hash = subprocess_output(['git', 'log', '--oneline', r'--format="%H"'], False)    
+    full_hash = subprocess_output(['git', 'log', '--oneline', r'--format="%H"'], False)
     return tags, commits, dates, full_hash
 
 def append_last(current_version, version_model, config):
@@ -108,12 +112,14 @@ def append_last(current_version, version_model, config):
     changelog_txt = ''
     with open('CHANGELOG.md', 'r') as f:
         changelog_txt = f.read()
-    
-    patt = VERSION_RE.format('|'.join(config['changelog_sections'].keys()))
+
+    sections = '|'.join(config['changelog_sections'].keys())
+    patt = VERSION_MODEL_RE.format(sections)
 
     versions = re.findall(patt, changelog_txt)
     last = versions[0]
-    last_version_value = re.match(r'## \[(Not released|\d+\.\d+\.\d+)\].*', last).groups(0)[0]
+    title_re = r'## \[(Not released|\d+\.\d+\.\d+)\].*'
+    last_version_value = re.match(title_re, last).groups(0)[0]
 
     if last_version_value == current_version:
         versions[0] = version_model
@@ -127,7 +133,6 @@ def append_last(current_version, version_model, config):
 def generate_changelogs(start_in: str = None, last: bool = False):
     tags, commits, dates, full_hash = basic_git_logs()
     config = load_config()
-    changelog_body = ""
 
     tags.reverse()
     commits.reverse()
@@ -148,20 +153,20 @@ def generate_changelogs(start_in: str = None, last: bool = False):
         if use_path_filter:
             valid_commit = full_hash[i] in valid_commits
 
-        if re.search('\d+\.\d+\.\d+', tags[i]) is not None:            
-            vers = re.search('\d+\.\d+\.\d+', tags[i])[0]
+        if re.search(VERSION_RE, tags[i]) is not None:
+            vers = re.search(VERSION_RE, tags[i])[0]
             if vers == start_in:
                 saving = True
 
             if not saving:
                 current_version_commits = []
                 continue
-            
+
             if valid_commit:
                 current_version_commits.append(commit)
-                
+
             versions.append(_get_version_model(
-                f'[{vers}]',
+                vers,
                 current_version_commits,
                 config,
                 dates[i]
@@ -170,9 +175,10 @@ def generate_changelogs(start_in: str = None, last: bool = False):
             current_version_commits = []
         elif valid_commit:
             current_version_commits.append(commit)
+
     if current_version_commits:
         versions.append(_get_version_model(
-            '[Not released]',
+            'Not released',
             current_version_commits,
             config
         ))
@@ -186,4 +192,3 @@ def generate_changelogs(start_in: str = None, last: bool = False):
         changelog = CHANGELOG_MODEL.format(''.join(versions))
         with open('CHANGELOG.md', 'w+') as f:
             f.write(changelog)
-    
